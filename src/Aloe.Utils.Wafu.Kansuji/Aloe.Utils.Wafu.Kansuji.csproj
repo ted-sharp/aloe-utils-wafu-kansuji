@@ -20,7 +20,7 @@
 		<RepositoryUrl>https://github.com/ted-sharp/aloe-utils-wafu-kansuji.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageIcon>Aloe.png</PackageIcon>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>README_Package.md</PackageReadmeFile>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
@@ -45,7 +45,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md">
+		<None Include="..\README_Package.md">
 		  <Pack>True</Pack>
 		  <PackagePath>\</PackagePath>
 		</None>
