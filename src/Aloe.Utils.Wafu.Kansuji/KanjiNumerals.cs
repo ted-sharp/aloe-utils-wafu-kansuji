@@ -19,6 +19,34 @@ public static class KanjiNumerals
         RegexOptions.Compiled
     );
 
+    private static readonly Dictionary<char, string> ArabicNumeralsMap = new()
+    {
+        ['壱'] = "1",
+        ['一'] = "1",
+        ['十'] = "1",
+        ['拾'] = "1",
+        ['弐'] = "2",
+        ['二'] = "2",
+        ['参'] = "3",
+        ['三'] = "3",
+        ['肆'] = "4",
+        ['四'] = "4",
+        ['伍'] = "5",
+        ['五'] = "5",
+        ['陸'] = "6",
+        ['六'] = "6",
+        ['漆'] = "7",
+        ['七'] = "7",
+        ['捌'] = "8",
+        ['八'] = "8",
+        ['玖'] = "9",
+        ['九'] = "9",
+        ['零'] = "0",
+        ['〇'] = "0",
+    };
+
+    private static readonly HashSet<char> PositionalDigits = new() { '〇', '零', '一', '二', '三', '四', '五', '六', '七', '八', '九' };
+
     /// <summary>
     /// 大字を通常漢数字に変換し、かつ数値のみの文字列では逆方向の大字変換も行います。
     /// </summary>
@@ -231,8 +259,7 @@ public static class KanjiNumerals
 
         // 数字部／サフィックス分離
         var i = 0;
-        var posDigits = new HashSet<char> { '〇', '零', '一', '二', '三', '四', '五', '六', '七', '八', '九' };
-        while (i < input.Length && posDigits.Contains(input[i]))
+        while (i < input.Length && PositionalDigits.Contains(input[i]))
         {
             i++;
         }
@@ -318,36 +345,10 @@ public static class KanjiNumerals
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var map = new Dictionary<char, string>
-        {
-            ['壱'] = "1",
-            ['一'] = "1",
-            ['十'] = "1",
-            ['拾'] = "1",
-            ['弐'] = "2",
-            ['二'] = "2",
-            ['参'] = "3",
-            ['三'] = "3",
-            ['肆'] = "4",
-            ['四'] = "4",
-            ['伍'] = "5",
-            ['五'] = "5",
-            ['陸'] = "6",
-            ['六'] = "6",
-            ['漆'] = "7",
-            ['七'] = "7",
-            ['捌'] = "8",
-            ['八'] = "8",
-            ['玖'] = "9",
-            ['九'] = "9",
-            ['零'] = "0",
-            ['〇'] = "0",
-        };
-
         var sb = new StringBuilder();
         foreach (var c in input)
         {
-            if (map.TryGetValue(c, out var digit))
+            if (ArabicNumeralsMap.TryGetValue(c, out var digit))
             {
                 sb.Append(digit);
             }
