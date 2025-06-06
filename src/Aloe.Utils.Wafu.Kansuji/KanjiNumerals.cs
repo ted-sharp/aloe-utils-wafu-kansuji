@@ -13,40 +13,6 @@ namespace Aloe.Utils.Wafu.Kansuji;
 /// </summary>
 public static class KanjiNumerals
 {
-    // 正規表現：漢数字・単位の連続部分
-    private static readonly Regex KanjiNumberRegex = new(
-        "[零〇一二三四五六七八九十百千万億兆]+",
-        RegexOptions.Compiled
-    );
-
-    private static readonly Dictionary<char, string> ArabicNumeralsMap = new()
-    {
-        ['壱'] = "1",
-        ['一'] = "1",
-        ['十'] = "1",
-        ['拾'] = "1",
-        ['弐'] = "2",
-        ['二'] = "2",
-        ['参'] = "3",
-        ['三'] = "3",
-        ['肆'] = "4",
-        ['四'] = "4",
-        ['伍'] = "5",
-        ['五'] = "5",
-        ['陸'] = "6",
-        ['六'] = "6",
-        ['漆'] = "7",
-        ['七'] = "7",
-        ['捌'] = "8",
-        ['八'] = "8",
-        ['玖'] = "9",
-        ['九'] = "9",
-        ['零'] = "0",
-        ['〇'] = "0",
-    };
-
-    private static readonly HashSet<char> PositionalDigits = new() { '〇', '零', '一', '二', '三', '四', '五', '六', '七', '八', '九' };
-
     /// <summary>
     /// 大字を通常漢数字に変換し、かつ数値のみの文字列では逆方向の大字変換も行います。
     /// </summary>
@@ -248,9 +214,21 @@ public static class KanjiNumerals
     /// <param name="input">変換対象の文字列。位取り形式の漢数字とその他の文字を含むことができます。</param>
     /// <returns>変換後の文字列。数値部分が大数単位付きの漢数字に変換されます。</returns>
     /// <exception cref="ArgumentNullException"><paramref name="input"/>が<see langword="null"/>の場合にスローされます。</exception>
+    /// <remarks>
+    /// <para>
+    /// このメソッドは以下のような変換を行います：
+    /// </para>
+    /// <list type="bullet">
+    /// <item><description>位取り表記（例：「一三」）を大数単位付き表記（例：「十三」）に変換します。</description></item>
+    /// <item><description>数値部分のみを変換し、それ以外の文字（サフィックス）はそのまま保持します。</description></item>
+    /// <item><description>零（〇）は、一の位以外では省略されます。</description></item>
+    /// </list>
+    /// </remarks>
     /// <example>
     /// <code>
     /// var result = KanjiNumerals.ConvertToLargeNumbersNotation("一三"); // "十三"を返します
+    /// var result2 = KanjiNumerals.ConvertToLargeNumbersNotation("一三円"); // "十三円"を返します
+    /// var result3 = KanjiNumerals.ConvertToLargeNumbersNotation("一〇三"); // "百三"を返します
     /// </code>
     /// </example>
     public static string ConvertToLargeNumbersNotation(string input)

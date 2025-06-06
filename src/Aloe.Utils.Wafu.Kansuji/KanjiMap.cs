@@ -2,16 +2,21 @@
 // Copyright (c) ted-sharp. All rights reserved.
 // </copyright>
 
-using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace Aloe.Utils.Wafu.Kansuji;
 
 /// <summary>
-/// 漢数字の関連付け
+/// 漢数字の関連付けを行うクラス
+/// 大字（壱、弐など）と通常の漢数字（一、二など）の変換や、
+/// 漢数字からアラビア数字への変換に必要なマッピングを提供します。
 /// </summary>
 internal static class KanjiMap
 {
-    // 大字→通常漢数字マップ
+    /// <summary>
+    /// 大字から通常の漢数字への変換マップ
+    /// 例：壱→一、弐→二
+    /// </summary>
     internal static readonly Dictionary<char, char> DaijiToNormalMap = new()
     {
         ['壱'] = '一',
@@ -29,7 +34,10 @@ internal static class KanjiMap
         ['萬'] = '万',
     };
 
-    // 通常漢数字→大字マップ
+    /// <summary>
+    /// 通常の漢数字から大字への変換マップ
+    /// 例：一→壱、二→弐
+    /// </summary>
     internal static readonly Dictionary<char, char> NormalToDaijiMap = new()
     {
         ['一'] = '壱',
@@ -47,7 +55,9 @@ internal static class KanjiMap
         ['万'] = '萬',
     };
 
-    // Normalize 用に判定する通常漢数字セット
+    /// <summary>
+    /// 正規化処理で使用する通常の漢数字のセット
+    /// </summary>
     internal static readonly HashSet<char> NormalNumericChars =
     [
         '一',
@@ -65,6 +75,10 @@ internal static class KanjiMap
         '万',
     ];
 
+    /// <summary>
+    /// 漢数字からアラビア数字への変換マップ
+    /// 例：一→1、二→2
+    /// </summary>
     internal static readonly Dictionary<char, int> KanjiToArabicMap = new()
     {
         ['零'] = 0,
@@ -80,7 +94,9 @@ internal static class KanjiMap
         ['九'] = 9,
     };
 
-    // 小単位マップ（十・百・千）
+    /// <summary>
+    /// 小単位（十・百・千）の数値マップ
+    /// </summary>
     internal static readonly Dictionary<char, int> SmallUnitMap = new()
     {
         ['十'] = 10,
@@ -88,10 +104,55 @@ internal static class KanjiMap
         ['千'] = 1000,
     };
 
-    // 大単位マップ（万・億・兆）
+    /// <summary>
+    /// 大単位（万・億）の数値マップ
+    /// </summary>
     internal static readonly Dictionary<char, int> LargeUnitMap = new()
     {
         ['万'] = 1_0000,
         ['億'] = 1_0000_0000,
     };
+
+    /// <summary>
+    /// 漢数字と単位の連続部分を検出するための正規表現
+    /// </summary>
+    internal static readonly Regex KanjiNumberRegex = new(
+        "[零〇一二三四五六七八九十百千万億兆]+",
+        RegexOptions.Compiled
+    );
+
+    /// <summary>
+    /// 漢数字（大字・通常）からアラビア数字の文字列への変換マップ
+    /// 例：壱→"1"、一→"1"
+    /// </summary>
+    internal static readonly Dictionary<char, string> ArabicNumeralsMap = new()
+    {
+        ['壱'] = "1",
+        ['一'] = "1",
+        ['十'] = "1",
+        ['拾'] = "1",
+        ['弐'] = "2",
+        ['二'] = "2",
+        ['参'] = "3",
+        ['三'] = "3",
+        ['肆'] = "4",
+        ['四'] = "4",
+        ['伍'] = "5",
+        ['五'] = "5",
+        ['陸'] = "6",
+        ['六'] = "6",
+        ['漆'] = "7",
+        ['七'] = "7",
+        ['捌'] = "8",
+        ['八'] = "8",
+        ['玖'] = "9",
+        ['九'] = "9",
+        ['零'] = "0",
+        ['〇'] = "0",
+    };
+
+    /// <summary>
+    /// 位取り記数法で使用される漢数字のセット
+    /// </summary>
+    internal static readonly HashSet<char> PositionalDigits = ['〇', '零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
 }
