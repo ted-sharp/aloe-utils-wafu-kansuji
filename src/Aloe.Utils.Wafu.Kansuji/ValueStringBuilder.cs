@@ -68,10 +68,14 @@ internal ref struct ValueStringBuilder : IDisposable
     /// <param name="s">追加する文字列</param>
     public void Append(string s)
     {
-        foreach (char c in s)
+        var needed = s.Length;
+        if (this._pos + needed > this._chars.Length)
         {
-            this.Append(c);
+            this.GrowTo(this._pos + needed);
         }
+
+        s.AsSpan().CopyTo(this._chars.Slice(this._pos));
+        this._pos += needed;
     }
 
     /// <summary>
@@ -103,6 +107,23 @@ internal ref struct ValueStringBuilder : IDisposable
     private void Grow()
     {
         char[] newArray = ArrayPool<char>.Shared.Rent(this._chars.Length * 2);
+        this._chars.CopyTo(newArray);
+        if (this._arrayToReturnToPool != null)
+        {
+            ArrayPool<char>.Shared.Return(this._arrayToReturnToPool);
+        }
+
+        this._chars = newArray;
+        this._arrayToReturnToPool = newArray;
+    }
+
+    /// <summary>
+    /// バッファを拡張します。
+    /// </summary>
+    private void GrowTo(int requiredLength)
+    {
+        int newSize = Math.Max(this._chars.Length * 2, requiredLength);
+        char[] newArray = ArrayPool<char>.Shared.Rent(newSize);
         this._chars.CopyTo(newArray);
         if (this._arrayToReturnToPool != null)
         {
