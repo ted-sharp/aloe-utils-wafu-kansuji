@@ -1,9 +1,7 @@
-namespace Aloe.Utils.Wafu.JisCompat.Tests;
+namespace Aloe.Utils.Wafu.Kansuji.Tests;
 
 using Xunit;
 using Aloe.Utils.Wafu.Kansuji;
-using Xunit.Abstractions;
-using System.ComponentModel.DataAnnotations;
 
 /// <summary>
 /// KanjiNumerals クラスのテスト

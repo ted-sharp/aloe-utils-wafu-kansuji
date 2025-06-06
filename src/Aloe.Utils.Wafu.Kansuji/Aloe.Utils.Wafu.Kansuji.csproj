@@ -53,7 +53,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="LinkDotNet.StringBuilder" Version="2.4.1" />
+		<PackageReference Include="Aloe.Utils.Text" Version="1.0.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
