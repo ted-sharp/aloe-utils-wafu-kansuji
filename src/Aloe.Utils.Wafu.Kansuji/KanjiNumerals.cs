@@ -29,25 +29,28 @@ public static class KanjiNumerals
     {
         ArgumentNullException.ThrowIfNull(input);
 
+        // 先頭スタック領域として 128 文字分確保し、必要なら Grow してプールから拡張
+        Span<char> initialBuffer = stackalloc char[128];
+        using var vsb = new ValueStringBuilder(initialBuffer);
+
         bool numericOnly = input.Length > 0 && input.All(c => NormalNumericChars.Contains(c));
-        var sb = new StringBuilder(input.Length);
         foreach (var c in input)
         {
             if (KanjiMap.DaijiToNormalMap.TryGetValue(c, out var normal))
             {
-                sb.Append(normal);
+                vsb.Append(normal);
             }
             else if (numericOnly && NormalToDaijiMap.TryGetValue(c, out var daiji))
             {
-                sb.Append(daiji);
+                vsb.Append(daiji);
             }
             else
             {
-                sb.Append(c);
+                vsb.Append(c);
             }
         }
 
-        return sb.ToString();
+        return vsb.ToString();
     }
 
     /// <summary>
@@ -65,20 +68,23 @@ public static class KanjiNumerals
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var sb = new StringBuilder(input.Length);
+        // 初期バッファを stackalloc で確保
+        Span<char> initialBuffer = stackalloc char[64];
+        using var vsb = new ValueStringBuilder(initialBuffer);
+
         foreach (var c in input)
         {
             if (NormalToDaijiMap.TryGetValue(c, out var daiji))
             {
-                sb.Append(daiji);
+                vsb.Append(daiji);
             }
             else
             {
-                sb.Append(c);
+                vsb.Append(c);
             }
         }
 
-        return sb.ToString();
+        return vsb.ToString();
     }
 
     /// <summary>
@@ -164,13 +170,17 @@ public static class KanjiNumerals
             var value = ParseJapaneseNumber(numStr);
             var digits = value.ToString();
 
-            var sb = new StringBuilder(digits.Length);
+            // digits.Length 文字分のスタックバッファを確保（最大 32 桁程度なら十分）
+            int stackSize = Math.Min(digits.Length, 32);
+            Span<char> initialBuffer = stackalloc char[stackSize];
+            using var vsbInner = new ValueStringBuilder(initialBuffer);
+
             foreach (var ch in digits)
             {
-                sb.Append(DigitToKanji(ch));
+                vsbInner.Append(DigitToKanji(ch));
             }
 
-            return sb.ToString();
+            return vsbInner.ToString();
         });
     }
 
@@ -323,19 +333,23 @@ public static class KanjiNumerals
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var sb = new StringBuilder();
+        // 多くても input.Length ～ input.Length*2 文字程度になる想定のため
+        Span<char> initialBuffer = stackalloc char[input.Length];
+        using var vsb = new ValueStringBuilder(initialBuffer);
+
         foreach (var c in input)
         {
             if (ArabicNumeralsMap.TryGetValue(c, out var digit))
             {
-                sb.Append(digit);
+                // digit は string 型なので、Append(string) を呼ぶ
+                vsb.Append(digit);
             }
             else
             {
-                sb.Append(c);
+                vsb.Append(c);
             }
         }
 
-        return sb.ToString();
+        return vsb.ToString();
     }
 }
