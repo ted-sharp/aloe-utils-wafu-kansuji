@@ -25,20 +25,20 @@ public class KanjiNumeralsTest
     [InlineData("萬", "万")]
     // 複数文字の連続
     [InlineData("拾壱", "十一")]
-    [InlineData("二十三", "弐拾参")]
+    [InlineData("弐拾参", "二十三")]
     // 非数値文字の混在
     [InlineData("二三年四月foo", "二三年四月foo")]  // Normalize は大字→通常漢字のみ行う
     [Theory(DisplayName = "大字が正しく通常の漢数字に変換されること")]
-    public void Normalize_ConvertsDaijiToNormalKanji(string input, string expected)
+    public void ConvertToShoji_ConvertsDaijiToNormalKanji(string input, string expected)
     {
-        var actual = KanjiNumerals.Normalize(input);
+        var actual = KanjiNumerals.ConvertToShoji(input);
         Assert.Equal(expected, actual);
     }
 
-    [Fact(DisplayName = "Normalize に null を渡すと ArgumentNullException を投げること")]
-    public void Normalize_NullInput_ThrowsArgumentNullException()
+    [Fact(DisplayName = "ConvertToShoji に null を渡すと ArgumentNullException を投げること")]
+    public void ConvertToShoji_NullInput_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => KanjiNumerals.Normalize(null!));
+        Assert.Throws<ArgumentNullException>(() => KanjiNumerals.ConvertToShoji(null!));
     }
 
     // === ConvertToDaiji テスト ===
@@ -53,7 +53,7 @@ public class KanjiNumeralsTest
     [InlineData("八", "捌")]
     [InlineData("九", "玖")]
     [InlineData("十", "拾")]
-    [InlineData("百", "佰")]
+    [InlineData("百", "陌")]
     [InlineData("千", "阡")]
     [InlineData("万", "萬")]
     // 複数文字の連続

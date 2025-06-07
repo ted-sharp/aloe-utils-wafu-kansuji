@@ -14,38 +14,30 @@ namespace Aloe.Utils.Wafu.Kansuji;
 public static class KanjiNumerals
 {
     /// <summary>
-    /// 大字を通常漢数字に変換し、かつ数値のみの文字列では逆方向の大字変換も行います。
+    /// 通常漢数字（小字: 一・二・三など）を大字（壱・弐・参など）に変換します。
+    /// その他の文字はそのまま保持されます。
     /// </summary>
-    /// <param name="input">変換対象の文字列。大字、通常漢数字、その他の文字を含むことができます。</param>
-    /// <returns>変換後の文字列。大字は通常漢数字に、数値のみの文字列の場合は通常漢数字を大字に変換します。</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="input"/>が<see langword="null"/>の場合にスローされます。</exception>
-    /// <example>
-    /// <code>
-    /// var result = KanjiNumerals.Normalize("壱拾参"); // "一十三"を返します
-    /// var result2 = KanjiNumerals.Normalize("一二三"); // "壱弐参"を返します（数値のみの場合）
-    /// </code>
-    /// </example>
-    public static string Normalize(string input)
+    /// <param name="input">変換対象の文字列。</param>
+    /// <returns>小字を大字に変換した文字列。</returns>
+    /// <exception cref="ArgumentNullException">input が null の場合にスローされます。</exception>
+    public static string ConvertToDaiji(string input)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        // 先頭スタック領域として 128 文字分確保し、必要なら Grow してプールから拡張
-        Span<char> initialBuffer = stackalloc char[128];
-        using var vsb = new ValueStringBuilder(initialBuffer);
+        // 入力長分のスタックバッファを確保
+        Span<char> buffer = stackalloc char[input.Length];
+        using var vsb = new ValueStringBuilder(buffer);
 
-        bool numericOnly = input.Length > 0 && input.All(c => NormalNumericChars.Contains(c));
-        foreach (var c in input)
+        foreach (char c in input)
         {
-            if (KanjiMap.DaijiToNormalMap.TryGetValue(c, out var normal))
+            if (NormalToDaijiMap.TryGetValue(c, out var daiji))
             {
-                vsb.Append(normal);
-            }
-            else if (numericOnly && NormalToDaijiMap.TryGetValue(c, out var daiji))
-            {
+                // 小字を大字に
                 vsb.Append(daiji);
             }
             else
             {
+                // その他はそのまま
                 vsb.Append(c);
             }
         }
@@ -54,32 +46,30 @@ public static class KanjiNumerals
     }
 
     /// <summary>
-    /// 通常漢数字をすべて大字に変換します。
+    /// 大字（壱・弐・参など）を通常漢数字（小字）に変換します。
+    /// その他の文字はそのまま保持されます。
     /// </summary>
-    /// <param name="input">変換対象の文字列。通常漢数字、その他の文字を含むことができます。</param>
-    /// <returns>変換後の文字列。すべての通常漢数字が大字に変換されます。</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="input"/>が<see langword="null"/>の場合にスローされます。</exception>
-    /// <example>
-    /// <code>
-    /// var result = KanjiNumerals.ConvertToDaiji("一十三"); // "壱拾参"を返します
-    /// </code>
-    /// </example>
-    public static string ConvertToDaiji(string input)
+    /// <param name="input">変換対象の文字列。</param>
+    /// <returns>大字を小字に変換した文字列。</returns>
+    /// <exception cref="ArgumentNullException">input が null の場合にスローされます。</exception>
+    public static string ConvertToShoji(string input)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        // 初期バッファを stackalloc で確保
-        Span<char> initialBuffer = stackalloc char[64];
-        using var vsb = new ValueStringBuilder(initialBuffer);
+        // 入力長分のスタックバッファを確保
+        Span<char> buffer = stackalloc char[input.Length];
+        using var vsb = new ValueStringBuilder(buffer);
 
-        foreach (var c in input)
+        foreach (char c in input)
         {
-            if (NormalToDaijiMap.TryGetValue(c, out var daiji))
+            if (DaijiToNormalMap.TryGetValue(c, out var normal))
             {
-                vsb.Append(daiji);
+                // 大字を小字に
+                vsb.Append(normal);
             }
             else
             {
+                // その他はそのまま
                 vsb.Append(c);
             }
         }
@@ -92,7 +82,7 @@ public static class KanjiNumerals
     /// </summary>
     /// <param name="s">変換対象の漢数字表記の文字列。</param>
     /// <returns>変換された数値。</returns>
-    private static long ParseJapaneseNumber(string s)
+    private static decimal ParseJapaneseNumber(string s)
     {
         if (String.IsNullOrEmpty(s))
         {
@@ -112,11 +102,11 @@ public static class KanjiNumerals
 
                 // 左側が空なら「一」とみなす
                 var leftValue = String.IsNullOrEmpty(left)
-                    ? 1L
+                    ? 1M
                     : ParseJapaneseNumber(left);
 
                 // 大単位の乗算結果 + 残りを再帰
-                return leftValue * unitValue + ParseJapaneseNumber(right);
+                return (leftValue * unitValue) + ParseJapaneseNumber(right);
             }
         }
 
@@ -127,10 +117,10 @@ public static class KanjiNumerals
     /// <summary>
     /// 漢数字表記（十・百・千のみ）を数値に変換します。
     /// </summary>
-    private static long ParseSmallUnits(string s)
+    private static decimal ParseSmallUnits(string s)
     {
-        long total = 0;
-        long current = 0;
+        decimal total = 0;
+        decimal current = 0;
         foreach (var c in s)
         {
             if (KanjiToArabicMap.TryGetValue(c, out var digit))
@@ -183,20 +173,6 @@ public static class KanjiNumerals
             return vsbInner.ToString();
         });
     }
-
-    /// <summary>
-    /// 指定された文字が漢数字（零、〇、一～九）かどうかを判定します。
-    /// </summary>
-    /// <param name="c">判定対象の文字。</param>
-    /// <returns>漢数字の場合は<see langword="true"/>、それ以外の場合は<see langword="false"/>。</returns>
-    private static bool IsNumeric(char c) => c == '零' || c == '〇' || (c >= '一' && c <= '九');
-
-    /// <summary>
-    /// 指定された文字が単位（十、百、千、万）かどうかを判定します。
-    /// </summary>
-    /// <param name="c">判定対象の文字。</param>
-    /// <returns>単位の場合は<see langword="true"/>、それ以外の場合は<see langword="false"/>。</returns>
-    private static bool IsUnit(char c) => c == '十' || c == '百' || c == '千' || c == '万';
 
     /// <summary>
     /// アラビア数字を漢数字に変換します。

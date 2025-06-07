@@ -19,18 +19,31 @@ internal static class KanjiMap
     /// </summary>
     internal static readonly Dictionary<char, char> DaijiToNormalMap = new()
     {
+        ['零'] = '〇',
         ['壱'] = '一',
+        ['壹'] = '一', // 旧字・俗字
+        ['弌'] = '一', // 旧字・俗字
         ['弐'] = '二',
+        ['貳'] = '二', // 旧字・俗字
+        ['貮'] = '二', // 旧字・俗字
+        ['弍'] = '二', // 旧字・俗字
         ['参'] = '三',
+        ['參'] = '二', // 旧字・俗字
+        ['弎'] = '二', // 旧字・俗字
         ['肆'] = '四',
+        ['亖'] = '四', // 古字
         ['伍'] = '五',
         ['陸'] = '六',
         ['漆'] = '七',
+        ['柒'] = '七', // 旧字・俗字
         ['捌'] = '八',
         ['玖'] = '九',
         ['拾'] = '十',
-        ['佰'] = '百',
+        ['什'] = '十',
+        ['陌'] = '百',
+        ['佰'] = '百', // 旧字・俗字
         ['阡'] = '千',
+        ['仟'] = '千', // 旧字・俗字
         ['萬'] = '万',
     };
 
@@ -40,6 +53,7 @@ internal static class KanjiMap
     /// </summary>
     internal static readonly Dictionary<char, char> NormalToDaijiMap = new()
     {
+        ['〇'] = '零',
         ['一'] = '壱',
         ['二'] = '弐',
         ['三'] = '参',
@@ -50,7 +64,7 @@ internal static class KanjiMap
         ['八'] = '捌',
         ['九'] = '玖',
         ['十'] = '拾',
-        ['百'] = '佰',
+        ['百'] = '陌',
         ['千'] = '阡',
         ['万'] = '萬',
     };
@@ -97,20 +111,28 @@ internal static class KanjiMap
     /// <summary>
     /// 小単位（十・百・千）の数値マップ
     /// </summary>
-    internal static readonly Dictionary<char, int> SmallUnitMap = new()
+    internal static readonly Dictionary<char, decimal> SmallUnitMap = new()
     {
         ['十'] = 10,
         ['百'] = 100,
         ['千'] = 1000,
+        ['拾'] = 10,
+        ['佰'] = 100,
+        ['阡'] = 1000,
+
     };
 
     /// <summary>
     /// 大単位（万・億）の数値マップ
     /// </summary>
-    internal static readonly Dictionary<char, int> LargeUnitMap = new()
+    internal static readonly Dictionary<char, decimal> LargeUnitMap = new()
     {
+        ['萬'] = 1_0000,
         ['万'] = 1_0000,
         ['億'] = 1_0000_0000,
+        ['兆'] = 1_0000_0000,
+        ['京'] = 1_0000_0000_0000,
+        ['垓'] = 1_0000_0000_0000_0000,
     };
 
     /// <summary>
