@@ -17,8 +17,7 @@
 using Aloe.Utils.Wafu.Kansuji;
 
 // 大字を通常漢数字に変換
-var result1 = KanjiNumerals.Normalize("壱拾参"); // "一十三"を返します
-var result2 = KanjiNumerals.Normalize("二十三"); // "弐拾参"を返します（数値のみの場合）
+var result1 = KanjiNumerals.ConvertToShoji("壱拾参"); // "一十三"を返します
 
 // 通常漢数字を大字に変換
 var result3 = KanjiNumerals.ConvertToDaiji("一十三"); // "壱拾参"を返します
@@ -35,6 +34,10 @@ var result8 = KanjiNumerals.ConvertToArabicNumerals("参年A"); // "3年A"を返
 // 大数単位を付与した漢数字表記に変換
 var result9 = KanjiNumerals.ConvertToLargeNumbersNotation("一九五七"); // "一千九百五十七"を返します
 var result10 = KanjiNumerals.ConvertToLargeNumbersNotation("二〇二三年"); // "二千二十三年"を返します
+
+// 漢数字を数値に変換
+var result11 = KanjiNumerals.ParseKansuji("一二三"); // 123 を返します
+var result12 = KanjiNumerals.ParseKansuji("一京二兆三億四万五千六百七十八"); // 10_0020_0030_0045_678 を返します(_は区切り)
 ```
 
 ## ライセンス
