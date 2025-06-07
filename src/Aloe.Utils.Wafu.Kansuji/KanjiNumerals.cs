@@ -304,38 +304,21 @@ public static class KanjiNumerals
     };
 
     /// <summary>
-    /// 漢数字および大字を 0–9 のアラビア数字文字列に変換します。
+    /// 文字列中の漢数字表記（大字・通常漢数字・単位）をアラビア数字の文字列に変換します。
+    /// 単位を含む場合は ParseJapaneseNumber と同様に解析し、他の部分はそのまま保持します。
     /// </summary>
-    /// <param name="input">変換対象の文字列。漢数字、大字、その他の文字を含むことができます。</param>
-    /// <returns>変換後の文字列。漢数字と大字がアラビア数字に変換されます。</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="input"/>が<see langword="null"/>の場合にスローされます。</exception>
-    /// <example>
-    /// <code>
-    /// var result = KanjiNumerals.ConvertToArabicNumerals("壱拾参"); // "13"を返します
-    /// var result2 = KanjiNumerals.ConvertToArabicNumerals("一十三"); // "13"を返します
-    /// </code>
-    /// </example>
+    /// <param name="input">変換対象の文字列。</param>
+    /// <returns>漢数字部分がアラビア数字に置換された文字列。</returns>
+    /// <exception cref="ArgumentNullException">input が null の場合にスローされます。</exception>
     public static string ConvertToArabicNumerals(string input)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        // 多くても input.Length ～ input.Length*2 文字程度になる想定のため
-        Span<char> initialBuffer = stackalloc char[input.Length];
-        using var vsb = new ValueStringBuilder(initialBuffer);
-
-        foreach (var c in input)
+        return KanjiNumberRegex.Replace(input, m =>
         {
-            if (ArabicNumeralsMap.TryGetValue(c, out var digit))
-            {
-                // digit は string 型なので、Append(string) を呼ぶ
-                vsb.Append(digit);
-            }
-            else
-            {
-                vsb.Append(c);
-            }
-        }
-
-        return vsb.ToString();
+            var numStr = m.Value;
+            var value = ParseKansuji(numStr);
+            return value.ToString();
+        });
     }
 }
