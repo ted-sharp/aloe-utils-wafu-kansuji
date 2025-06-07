@@ -82,11 +82,21 @@ public static class KanjiNumerals
     /// </summary>
     /// <param name="s">変換対象の漢数字表記の文字列。</param>
     /// <returns>変換された数値。</returns>
-    private static decimal ParseJapaneseNumber(string s)
+    public static decimal ParseKansuji(string s)
     {
-        if (String.IsNullOrEmpty(s))
+        ArgumentNullException.ThrowIfNull(s);
+
+        // 「漢数字文字のみ」の場合は位取り表記とみなして 10 進数的にパース
+        //    例: '一','二','三' を 1*10 + 2 = 12 → 12*10+3 = 123
+        if (s.Length > 0 && s.All(c => KanjiToArabicMap.ContainsKey(c)))
         {
-            return 0;
+            decimal result = 0;
+            foreach (var c in s)
+            {
+                result = (result * 10M) + KanjiToArabicMap[c];
+            }
+
+            return result;
         }
 
         // 大単位ごとに再帰的に分割
@@ -103,10 +113,10 @@ public static class KanjiNumerals
                 // 左側が空なら「一」とみなす
                 var leftValue = String.IsNullOrEmpty(left)
                     ? 1M
-                    : ParseJapaneseNumber(left);
+                    : ParseKansuji(left);
 
                 // 大単位の乗算結果 + 残りを再帰
-                return (leftValue * unitValue) + ParseJapaneseNumber(right);
+                return (leftValue * unitValue) + ParseKansuji(right);
             }
         }
 
@@ -157,7 +167,7 @@ public static class KanjiNumerals
         return KanjiNumberRegex.Replace(input, m =>
         {
             var numStr = m.Value;
-            var value = ParseJapaneseNumber(numStr);
+            var value = ParseKansuji(numStr);
             var digits = value.ToString();
 
             // digits.Length 文字分のスタックバッファを確保（最大 32 桁程度なら十分）
