@@ -8,7 +8,7 @@ using Aloe.Utils.Wafu.Kansuji;
 /// </summary>
 public class KanjiNumeralsTest
 {
-    // === Normalize テスト ===
+    // === ConvertToShoji テスト ===
     [InlineData("", "")]
     [InlineData("壱", "一")]
     [InlineData("弐", "二")]
@@ -27,7 +27,7 @@ public class KanjiNumeralsTest
     [InlineData("拾壱", "十一")]
     [InlineData("弐拾参", "二十三")]
     // 非数値文字の混在
-    [InlineData("二三年四月foo", "二三年四月foo")]  // Normalize は大字→通常漢字のみ行う
+    [InlineData("二三年四月foo", "二三年四月foo")]  // ConvertToShoji は大字→通常漢字のみ行う
     [Theory(DisplayName = "大字が正しく通常の漢数字に変換されること")]
     public void ConvertToShoji_ConvertsDaijiToNormalKanji(string input, string expected)
     {
