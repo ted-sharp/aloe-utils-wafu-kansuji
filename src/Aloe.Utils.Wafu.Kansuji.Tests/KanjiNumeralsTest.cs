@@ -150,4 +150,31 @@ public class KanjiNumeralsTest
     {
         Assert.Throws<ArgumentNullException>(() => KanjiNumerals.ConvertToArabicNumerals(null!));
     }
+
+    [Theory(DisplayName = "ParseKansuji：単純な漢数字を decimal に変換")]
+    [InlineData("一二三", 123)]
+    [InlineData("拾弐", 12)]
+    [InlineData("二百三十四", 234)]
+    [InlineData("三万五千", 35000)]
+    [InlineData("一兆二千三百四十五億", 1_2345_0000_0000)]
+    [InlineData("一京二兆三億四万五千六百七十八", 10_0020_0030_0045_678)] // 1京 2兆 3億 4万5千6百7十8
+    public void ParseKansuji_ValidInputs(string input, decimal expected)
+    {
+        Assert.Equal(expected, KanjiNumerals.ParseKansuji(input));
+    }
+
+    [Theory(DisplayName = "ParseKansuji：文字列に他文字混在→数値部分のみ変換")]
+    [InlineData("令和三年五百", 500)]
+    [InlineData("foo千二百bar", 1200)]
+    public void ParseKansuji_MixedInputs(string input, decimal expected)
+    {
+        Assert.Equal(expected, KanjiNumerals.ParseKansuji(input));
+    }
+
+    [Fact(DisplayName = "ParseKansuji に null を渡すと ArgumentNullException を投げる")]
+    public void ParseKansuji_NullInput_Throws()
+    {
+        Assert.Throws<ArgumentNullException>(() => KanjiNumerals.ParseKansuji(null!));
+    }
+
 }
